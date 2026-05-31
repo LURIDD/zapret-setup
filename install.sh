@@ -71,3 +71,4 @@ if systemctl is-active --quiet zapret; then
 else
     error "Zapret başlatılamadı. 'systemctl status zapret' ile kontrol et."
 fi
+
