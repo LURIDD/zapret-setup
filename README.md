@@ -4,9 +4,15 @@ Türkiye ISP'leri için DPI bypass kurulumu. Discord, Roblox ve diğer engelli s
 
 ## Strateji
 
-`tpws --split-pos=sniext+4 --oob=tls --fix-seg`
+`nfqws --dpi-desync=fake,multisplit --dpi-desync-split-pos=1,midsld --dpi-desync-fooling=md5sig`
 
-TLS ClientHello'yu SNI extension sınırında böler ve Out-of-Band byte gönderir. TLS 1.2 ve TLS 1.3 ile çalışır.
+TLS ClientHello paketini parçalara böler ve ISP'nin DPI sisteminin okuyamamasını sağlar. Paketler doğru sırayla gönderildiği için sunucu tarafında bağlantı reddi yaşanmaz.
+
+## Özellikler
+
+- **autohostlist modu** — engelli olmayan sitelere dokunmaz; bağlantı başarısız olunca domain'i otomatik listeye ekler, sonraki denemelerde bypass uygular
+- **multisplit** — `multidisorder`'a kıyasla daha stabil, ~%100 başarı oranı
+- IPv6 devre dışı (ISP uyumsuzluğu nedeniyle)
 
 ## Kurulum
 
@@ -19,11 +25,23 @@ sudo bash install.sh
 ## Test
 
 ```bash
-curl -o /dev/null -w '%{http_code}\n' https://discord.com
-curl -o /dev/null -w '%{http_code}\n' https://www.roblox.com
+curl -o /dev/null -w '%{http_code}
+' https://discord.com
+curl -o /dev/null -w '%{http_code}
+' https://www.roblox.com
 ```
 
 Her ikisi de `200` döndürmeli.
+
+## Autohostlist Yönetimi
+
+```bash
+# Listeyi görüntüle
+cat /opt/zapret/ipset/zapret-hosts-auto.txt
+
+# Manuel domain ekle
+echo "domain.com" | sudo tee -a /opt/zapret/ipset/zapret-hosts-auto.txt
+```
 
 ## Gereksinimler
 
@@ -33,10 +51,11 @@ Her ikisi de `200` döndürmeli.
 
 ## Teknik Detaylar
 
-- **zapret v72.12** (bol-van/zapret)
+- **zapret** (bol-van/zapret)
 - Firewall: nftables
-- Daemon: yalnızca tpws (DNAT transparent proxy)
-- `route_localnet=1` — tpws'nin 127.0.0.127'ye DNAT çalışması için gerekli
-- HTTP bypass: `--hostspell=hoSt`
-- HTTPS bypass: `--split-pos=sniext+4 --oob=tls --fix-seg`
+- Daemon: nfqws
+- Filtre modu: autohostlist
+- HTTP bypass: `fake,multisplit --dpi-desync-split-pos=method+2 --dpi-desync-fooling=md5sig`
+- HTTPS bypass: `fake,multisplit --dpi-desync-split-pos=1,midsld --dpi-desync-fooling=md5sig`
+- UDP/QUIC bypass: `fake --dpi-desync-repeats=6`
 - IPv6 devre dışı (ISP uyumsuzluğu nedeniyle)
