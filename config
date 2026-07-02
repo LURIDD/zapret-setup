@@ -61,8 +61,8 @@ NFQWS_UDP_PKT_IN=0
 #NFQWS_PORTS_TCP_KEEPALIVE=80
 #NFQWS_PORTS_UDP_KEEPALIVE=
 NFQWS_OPT="
---filter-tcp=80 --dpi-desync=fake,multisplit --dpi-desync-split-pos=method+2 --dpi-desync-fooling=md5sig <HOSTLIST> --new
---filter-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-split-pos=1,midsld --dpi-desync-fooling=md5sig <HOSTLIST> --new
+--filter-tcp=80 --dpi-desync=fake --dpi-desync-ttl=3 <HOSTLIST> --new
+--filter-tcp=443 --dpi-desync=fake --dpi-desync-ttl=3 <HOSTLIST> --new
 --filter-udp=443 --dpi-desync=fake --dpi-desync-repeats=6 <HOSTLIST>
 "
 
